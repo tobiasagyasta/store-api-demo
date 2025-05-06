@@ -1,13 +1,20 @@
 import { Product } from "@/types";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface CardProps {
   product: Product;
 }
 
 export function Card({ product }: CardProps) {
+  const router = useRouter();
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105">
+    <div
+      onClick={() => {
+        router.push(`/products/${product.id}`);
+      }}
+      className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-105"
+    >
       <div className="relative h-48">
         <img
           src={product.image}
@@ -22,7 +29,8 @@ export function Card({ product }: CardProps) {
           <span className="text-lg font-bold">${product.price}</span>
           <span className="text-sm text-gray-500">{product.category}</span>
           <span className="text-sm text-gray-500">{product.rating.count}</span>
-          <Link href={`products/${product.id}`}>View Details</Link>
+
+          {/* <Link href={`products/${product.id}`}>View Details</Link> */}
         </div>
       </div>
     </div>
