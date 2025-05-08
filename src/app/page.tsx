@@ -3,20 +3,22 @@ import { Card } from "@/components/Card";
 import { Product } from "@/types";
 import { useEffect, useState } from "react";
 
-function getProducts(): Promise<Product[]> {
-  return fetch("https://fakestoreapi.com/products").then((res) => {
-    if (!res.ok) throw new Error("Failed to fetch products");
-    return res.json();
-  });
-}
-
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    getProducts()
-      .then(setProducts)
-      .catch((error) => console.error("Failed to fetch products:", error));
+    async function getProducts() {
+      try {
+        const res = await fetch("https://fakestoreapi.com/products");
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data = await res.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
+    }
+    
+    getProducts();
   }, []);
 
   return (

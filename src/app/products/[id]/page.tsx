@@ -3,13 +3,6 @@ import { useParams } from "next/navigation";
 import { Product } from "@/types";
 import { useEffect, useState } from "react";
 
-function getProduct(id: string): Promise<Product> {
-  return fetch(`https://fakestoreapi.com/products/${id}`).then((res) => {
-    if (!res.ok) throw new Error("Failed to fetch product");
-    return res.json();
-  });
-}
-
 const ProductPage = () => {
   const params = useParams();
   const [product, setProduct] = useState<Product | null>(null);
@@ -17,19 +10,26 @@ const ProductPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!params.id) return;
-    setLoading(true);
-    setError(null);
-    getProduct(params.id as string)
-      .then((data) => {
+    async function getProduct() {
+      if (!params.id) return; //Check for id param, if not, return nothing
+      try {
+        setLoading(true); //Loading state
+        setError(null); //Reset error state
+        const res = await fetch(
+          `https://fakestoreapi.com/products/${params.id}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch product");
+        const data = await res.json();
         setProduct(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred"); //Catch error inside catch block
+      } finally {
+        setLoading(false); //Reset loading state
+      }
+    }
+
+    getProduct();
+  }, [params.id]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
